@@ -20,8 +20,6 @@ And that's it !
 
 MiniMock has the following limitations :
 - Currently it's a proof-of-concept not tested in a wide range of platforms and use-cases.
-- Currently covers only non-object functions (classes cannot be mocked yet).
-- Currently does not accept several functions with the same name.
 - Some complex features typically provided by usual mock frameworks are not and won't be provided (ex : `Times(AtLeast(17))`).
 - It has been developped and tested with gcc, it's not guaranteed to work with other tools.
 
@@ -34,24 +32,14 @@ MiniMock has the following limitations :
 
 - You already master an existing mock framework and are happy with it.
 - You need a strong, mature framework, created and maintained by a strong organization.
-- You strongly believe that C++ macros are ugly, evil and "unclean-code".
-- You value consiseness over expliciteness or simplicity.
 
-#### Why did I do MiniMock ?
+#### TODO
 
-While working on a side project, I wanted to quickly add a few unit tests.
-
-So I started to explore a few mock frameworks and encountered a few questions :
-- How can I quickly integrate them in my project ?
-- Why do they all reinvent tools to do basic things that are already in the langage itself ?
-    - `ASSERT_EQ`, `EXPECT_GE` (and 100 of them) to compare things but we already have `==` or `>=` native operators.
-    - Standard matchers `EXPECT_THAT(value2, MatchesRegex("Line \\d+"));` but the langage already provides them in a standard way.
-    - Custom matchers to be created in a specific way instead of a simple function `bool compare(Thing foo,Thing bar)` ?
-- Why do they invent a new langage `EXPECT_CALL(foo, Describe(5)).Times(3).WillRepeatedly(Return("Category 5"));` ?
-
-In other words, I feel they all define a whole new langage with its own complexity and slow learning curve.
-
-So I thought : is it possible to generalize most of these use cases in a basic, simple, native, minimalist form ?
+- Encapsulate macros in safe blocs (see [swallowing the semicolon](https://gcc.gnu.org/onlinedocs/gcc-4.8.5/cpp/Swallowing-the-Semicolon.html#Swallowing-the-Semicolon)).
+- Add `mini_mock` and `mini_mock::internal` namespaces instead of "mini_mock" prefix everywhere.
+- Add mini_mock tests to test mini_mock own behavior.
+- Allow to mock several functions with same name but different arguments.
+- Allow to mock class methods.
 
 ## MiniMock basics
 
