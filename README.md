@@ -19,13 +19,11 @@ And that's it !
 #### Limitations
 
 MiniMock has the following limitations :
-- Currently it's a quick-and-dirty-proof-of-concept
-not tested in a wide range of platforms/use-cases/projects/real-world-serious-things.
-- Internally heavily uses C++ macros and obscure hacks
+- Currently it's a proof-of-concept not tested in a wide range of platforms and use-cases.
 - Currently covers only non-object functions (classes cannot be mocked yet).
 - Currently does not accept several functions with the same name.
 - Some complex features typically provided by usual mock frameworks are not and won't be provided (ex : `Times(AtLeast(17))`).
-- It has been developped and tested with gcc, the macro-related-magic-stuff is not guaranted to work with other tools.
+- It has been developped and tested with gcc, it's not guaranteed to work with other tools.
 
 #### Why using MiniMock ?
 
@@ -68,15 +66,13 @@ A single `include` is required to use MiniMock in your tests :
 
 Three macros allow to declare tests :
 ```C++
-BEGIN_TESTS
-
-TEST(my_first_test) {
+TEST(my_first_test,[]() {
     ...
-}
+});
 
-TEST(my_second_test) {
+TEST(my_second_test,[]() {
     ...
-}
+});
 
 END_TESTS
 ```
@@ -87,9 +83,6 @@ It seems to be a de-facto standard in the world of test frameworks, making :
 - MiniMock easy to integrate with existing test launchers (I use CTest which is offered with CMake).
 - MiniMock easy to launch manually in command line : `my_test   my_first_test`.
 - Each test executed in a known clean state because a new application is launched for each test execution.
-
-Note : because `BEGIN_TESTS`, `TEST`, `END_TESTS` macros are actually the `main` function body, you cannot
-define other functions in between (yes it's hacky).
 
 #### Comparisons
 

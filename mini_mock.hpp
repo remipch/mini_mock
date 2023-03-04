@@ -153,27 +153,35 @@ return_type  function_name(arguments_def) { \
 // 'expected_calls_count' defines the exact times that the callback must be called
 #define MINI_MOCK_ON_CALL(function_name,...) mini_mock__ ## function_name(__VA_ARGS__)
 
-// This macro must be placed before all 'TEST' macros
-#define BEGIN_TESTS \
+typedef std::function<void()> mini_mock_test_function;
+
+static std::map<std::string,mini_mock_test_function> mini_mock_tests;
+
+// Declare a struct for test definition, it allows to update
+// the global test list for each test creation in the struct constructor
+struct mini_mock_test {
+    mini_mock_test(std::string test_name,mini_mock_test_function test_function){
+        mini_mock_tests[test_name] = test_function;
+    }
+};
+
+#define TEST(test,test_function) mini_mock_test test(#test,test_function)
+
+// This macro must be placed after all 'TEST' macros
+#define END_TESTS \
     int main(int argc, char **argv) {  \
         if(argc!=2) { \
             std::cout << RED << "test name must be passed as command line argument" << END_COLOR << '\n'; \
             exit(-1); \
         } \
-        std::string current_test_suite(argv[0]); \
-        std::string current_test_name(argv[1]); \
-        std::cout << YELLOW << current_test_name << END_COLOR << '\n'; \
-        if(false) {/*hacky way to treat following tests with else if*/} \
-
-// This macro must be placed between 'BEGIN_TESTS' and 'END_TESTS' macros
-#define TEST(test_name) else if(current_test_name==#test_name)
-
-// This macro must be placed after all 'TEST' macros
-#define END_TESTS \
-        else { \
-            std::cout << RED << "unkown test : " << current_test_name << END_COLOR << '\n'; \
+        std::string test_name(argv[1]); \
+        std::cout << YELLOW << test_name << END_COLOR << '\n'; \
+        if (mini_mock_tests.find(test_name) == mini_mock_tests.end()) { \
+            std::cout << RED << "unknown test  :" << test_name << END_COLOR << '\n'; \
             exit(-1); \
         } \
+        mini_mock_test_function test_function = mini_mock_tests.at(test_name); \
+        test_function(); \
         for (const auto &recorded_callback : mini_mock_recorded_callbacks) { \
             int uncalled_callbacks_count = recorded_callback.second; \
             ASSERT_MSG(uncalled_callbacks_count==0, std::to_string(uncalled_callbacks_count) \
@@ -188,4 +196,3 @@ return_type  function_name(arguments_def) { \
             exit(-1); \
         } \
     }
-

@@ -23,7 +23,7 @@ add_executable(test_my_project my_project.cpp test_my_project.cpp)
 
 # Auto populate the tests from test source file
 # Note : CMake must be reconfigured if tests are added/renamed/removed from test source file
-set(TEST_REGEX "^TEST\\(([^\\ )]+).*")
+set(TEST_REGEX "^TEST\\(([A-Za-z0-9_]+).*")
 file(STRINGS test_my_project.cpp detected_tests REGEX ${TEST_REGEX})
 foreach(test ${detected_tests})
     STRING(REGEX REPLACE ${TEST_REGEX} "\\1" test ${test})

@@ -8,11 +8,44 @@ MINI_MOCK_FUNCTION(the_lib_do_something,void,(float f),(f));
 
 MINI_MOCK_FUNCTION(the_lib_do_something_without_arg,int,(),());
 
+/******** Test my_project initialization ********/
+
+TEST(when_my_project_is_used_before_initialization_then_it_returns_error,[]() {
+    EXPECT(my_project_do_work(2)==MY_PROJECT_INCORRECT_STATE);
+});
+
+TEST(when_my_project_is_initialized_incorrectly_then_it_returns_error,[]() {
+    EXPECT(my_project_initialize("incorrect_args")==MY_PROJECT_INCORRECT_ARGUMENT);
+});
+
+TEST(when_my_project_is_initialized_correctly_then_the_lib_is_initialized_correctly,[]() {
+    MINI_MOCK_ON_CALL(the_lib_initialize,[](bool b,int i){
+        EXPECT(b);
+        EXPECT(i==10);
+        return THE_LIB_OK;
+    });
+    EXPECT(my_project_initialize("correct_args")==MY_PROJECT_OK);
+});
+
+TEST(when_my_project_is_initialized_correctly_but_the_lib_fails_then_it_returns_error,[]() {
+    MINI_MOCK_ON_CALL(the_lib_initialize,[](bool b,int i){
+        return THE_LIB_ERROR;
+    });
+    EXPECT(my_project_initialize("correct_args")==MY_PROJECT_CANNOT_INITIALIZE);
+});
+
+TEST(when_my_project_is_initialized_twice_then_it_returns_error,[]() {
+    MINI_MOCK_ON_CALL(the_lib_initialize,[](bool b,int i){
+        return THE_LIB_OK;
+    });
+    my_project_initialize("correct_args");
+    EXPECT(my_project_initialize("correct_args")==MY_PROJECT_INCORRECT_STATE);
+});
+
+/******** Test my_project doing actual work ********/
+
 // We don't need a framework to manage 'SetUp' and 'TearDown' features,
-// we simply create and reuse function(s) depending on what needs to be done in tests
-// WARNING : because of the hacky way (BEGIN_TESTS,TEST,END_TESTS) macros are treated,
-// you cannot define other function between them (yes it's hacky)
-// Just put everything before BEGIN_TESTS
+// simply create and reuse function(s) depending on what needs to be done in tests
 void init_my_project_correctly() {
     MINI_MOCK_ON_CALL(the_lib_initialize,[](bool b,int i){
         return THE_LIB_OK;
@@ -20,63 +53,25 @@ void init_my_project_correctly() {
     my_project_initialize("correct_args");
 }
 
-BEGIN_TESTS
-
-/******** Test my_project initialization ********/
-
-TEST(when_my_project_is_used_before_initialization_then_it_returns_error) {
-    EXPECT(my_project_do_work(2)==MY_PROJECT_INCORRECT_STATE);
-}
-
-TEST(when_my_project_is_initialized_incorrectly_then_it_returns_error) {
-    EXPECT(my_project_initialize("incorrect_args")==MY_PROJECT_INCORRECT_ARGUMENT);
-}
-
-TEST(when_my_project_is_initialized_correctly_then_the_lib_is_initialized_correctly) {
-    MINI_MOCK_ON_CALL(the_lib_initialize,[](bool b,int i){
-        EXPECT(b);
-        EXPECT(i==10);
-        return THE_LIB_OK;
-    });
-    EXPECT(my_project_initialize("correct_args")==MY_PROJECT_OK);
-}
-
-TEST(when_my_project_is_initialized_correctly_but_the_lib_fails_then_it_returns_error) {
-    MINI_MOCK_ON_CALL(the_lib_initialize,[](bool b,int i){
-        return THE_LIB_ERROR;
-    });
-    EXPECT(my_project_initialize("correct_args")==MY_PROJECT_CANNOT_INITIALIZE);
-}
-
-TEST(when_my_project_is_initialized_twice_then_it_returns_error) {
-    MINI_MOCK_ON_CALL(the_lib_initialize,[](bool b,int i){
-        return THE_LIB_OK;
-    });
-    my_project_initialize("correct_args");
-    EXPECT(my_project_initialize("correct_args")==MY_PROJECT_INCORRECT_STATE);
-}
-
-/******** Test my_project doing actual work ********/
-
-TEST(when_my_project_do_work_and_the_lib_fails_then_it_returns_error) {
+TEST(when_my_project_do_work_and_the_lib_fails_then_it_returns_error,[]() {
     init_my_project_correctly();
 
     MINI_MOCK_ON_CALL(the_lib_do_something_without_arg,[](){
         return THE_LIB_ERROR;
     });
     EXPECT(my_project_do_work(5)==MY_PROJECT_CANNOT_WORK);
-}
+});
 
-TEST(when_my_project_do_small_work_then_the_lib_is_called_correctly) {
+TEST(when_my_project_do_small_work_then_the_lib_is_called_correctly,[]() {
     init_my_project_correctly();
 
     MINI_MOCK_ON_CALL(the_lib_do_something_without_arg,[](){
         return THE_LIB_OK;
     });
     EXPECT(my_project_do_work(5)==MY_PROJECT_OK);
-}
+});
 
-TEST(when_my_project_do_big_work_then_the_lib_is_called_correctly) {
+TEST(when_my_project_do_big_work_then_the_lib_is_called_correctly,[]() {
     init_my_project_correctly();
 
     MINI_MOCK_ON_CALL(the_lib_do_something_without_arg,[](){
@@ -86,11 +81,11 @@ TEST(when_my_project_do_big_work_then_the_lib_is_called_correctly) {
         EXPECT(NEAR(f,200));
     });
     EXPECT(my_project_do_work(100)==MY_PROJECT_OK);
-}
+});
 
 /******** Show extended or incorrect use of MiniMock : following tests can fail on purpose ********/
 
-TEST(when_multiple_callbacks_are_recorded_they_are_called_in_correct_order) {
+TEST(when_multiple_callbacks_are_recorded_they_are_called_in_correct_order,[]() {
     init_my_project_correctly();
 
     // For a given mocked function, the callbacks will be called
@@ -120,16 +115,16 @@ TEST(when_multiple_callbacks_are_recorded_they_are_called_in_correct_order) {
     EXPECT(my_project_do_work(100)==MY_PROJECT_OK); // call the_lib_do_something(200)
     EXPECT(my_project_do_work(2)==MY_PROJECT_OK);
     EXPECT(my_project_do_work(2)==MY_PROJECT_OK);
-}
+});
 
-TEST(when_no_callback_is_recorded_and_mock_is_called_then_test_fails) {
+TEST(when_no_callback_is_recorded_and_mock_is_called_then_test_fails,[]() {
     init_my_project_correctly();
 
     // Test will fail because callback 'the_lib_do_something_without_arg' has not been registered :
     my_project_do_work(2);
-}
+});
 
-TEST(when_some_callbacks_are_never_called_then_test_fails) {
+TEST(when_some_callbacks_are_never_called_then_test_fails,[]() {
     init_my_project_correctly();
 
     MINI_MOCK_ON_CALL(the_lib_do_something_without_arg,[](){
@@ -140,6 +135,6 @@ TEST(when_some_callbacks_are_never_called_then_test_fails) {
 
     // Test will fail at the end because we registered 4 calls to 'the_lib_do_something_without_arg'
     // but only 2 had happen
-}
+});
 
 END_TESTS
