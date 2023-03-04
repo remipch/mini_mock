@@ -2,17 +2,17 @@
 
 ## Introduction
 
-MiniMock is a tentative to create a minimalist mock library with following characteristics :
+MiniMock is a minimalist mock and test library with following characteristics :
 - Easy to integrate : header-only, `#include` it and you're done.
 - Lightweight : approximatively 100 lines of code.
 - No dependency other than C++11.
 - Use native langage features instead of reinventing them differently.
 - Easy to learn : it provides a very limited set of functions while covering a wide range of use cases.
 
-In short, MiniMock offers basic mock features by providing only 9 macros :
-- 3 macros to structure tests : `BEGIN_TESTS`, `TEST`, `END_TESTS`.
-- 4 macros to compare things : `EXPECT`, `EXPECT_MSG`, `ASSERT_MSG`, `NEAR`.
+In short, MiniMock offers basic mock features by providing only 8 macros :
+- 2 macros to create tests : `TEST`, `CREATE_MAIN_ENTRY_POINT`.
 - 2 macros to mock functions : `MINI_MOCK_FUNCTION`, `MINI_MOCK_ON_CALL`.
+- 4 macros to compare things : `EXPECT`, `EXPECT_MSG`, `ASSERT_MSG`, `NEAR`.
 
 And that's it !
 
@@ -50,9 +50,9 @@ A single `include` is required to use MiniMock in your tests :
 #include "mini_mock.hpp"
 ```
 
-#### Tests structure
+#### Creating tests
 
-Three macros allow to declare tests :
+Two macros allow to create tests :
 ```C++
 TEST(my_first_test,[]() {
     ...
@@ -72,39 +72,7 @@ It seems to be a de-facto standard in the world of test frameworks, making :
 - MiniMock easy to launch manually in command line : `my_test   my_first_test`.
 - Each test executed in a known clean state because a new application is launched for each test execution.
 
-#### Comparisons
-
-Three macros allow to compare things in a test body :
-```C++
-// If condition is false :
-// - an automatic message will be printed (containing file name and line number)
-// - the test continues
-// - the test will fail at the end
-EXPECT(condition);
-
-// If condition is false :
-// - the given message will be printed
-// - the test continues
-// - the test will fail at the end
-EXPECT_MSG(condition,message);
-
-// If condition is false :
-// - the given message will be printed
-// - the test fails and stops immediately
-ASSERT_MSG(condition,message);
-```
-
-And a shortcut makes it easy to compare floating point values :
-```C++
-// NEAR is true if val1 is near val2 :
-NEAR(val1,val2)
-
-// NEAR use ACCEPTABLE_DIFFERENCE constant
-// which can be redefined by user if a different value is needed :
-ACCEPTABLE_DIFFERENCE = 0.000001
-```
-
-#### Mocking
+#### Mocking functions
 
 A single macro allows to define a mocked function with its signature :
 ```C++
@@ -135,6 +103,38 @@ MINI_MOCK_ON_CALL(external_library_do_something,[](bool b,int i){
 ```
 
 Several callbacks can be recorded successively for the same function, in the exact order in which they must be called.
+
+#### Testing
+
+Three macros allow to compare things in a test body :
+```C++
+// If condition is false :
+// - an automatic message will be printed (containing file name and line number)
+// - the test continues
+// - the test will fail at the end
+EXPECT(condition);
+
+// If condition is false :
+// - the given message will be printed
+// - the test continues
+// - the test will fail at the end
+EXPECT_MSG(condition,message);
+
+// If condition is false :
+// - the given message will be printed
+// - the test fails and stops immediately
+ASSERT_MSG(condition,message);
+```
+
+And a shortcut makes it easy to compare floating point values :
+```C++
+// NEAR is true if val1 is near val2 :
+NEAR(val1,val2)
+
+// NEAR use ACCEPTABLE_DIFFERENCE constant
+// which can be redefined by user if a different value is needed :
+ACCEPTABLE_DIFFERENCE = 0.000001
+```
 
 ## Example
 
