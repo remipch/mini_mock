@@ -168,7 +168,7 @@ struct mini_mock_test {
 #define TEST(test,test_function) mini_mock_test test(#test,test_function)
 
 // This macro must be placed after all 'TEST' macros
-#define END_TESTS \
+#define CREATE_MAIN_ENTRY_POINT() \
     int main(int argc, char **argv) {  \
         if(argc!=2) { \
             std::cout << RED << "test name must be passed as command line argument" << END_COLOR << '\n'; \

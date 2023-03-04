@@ -97,4 +97,4 @@ TEST(when_some_callbacks_are_never_called_then_test_fails,[]() {
     // but only 2 had happen
 });
 
-END_TESTS
+CREATE_MAIN_ENTRY_POINT();

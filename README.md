@@ -62,7 +62,7 @@ TEST(my_second_test,[]() {
     ...
 });
 
-END_TESTS
+CREATE_MAIN_ENTRY_POINT();
 ```
 These macros create a main entry point (`int main(int argc, char **argv)`) that requires the test name
 as the first argument and executes it.

@@ -36,4 +36,4 @@ TEST(when_my_project_is_initialized_twice_then_it_returns_error,[]() {
     EXPECT(my_project_initialize("correct_args")==MY_PROJECT_INCORRECT_STATE);
 });
 
-END_TESTS
+CREATE_MAIN_ENTRY_POINT();
