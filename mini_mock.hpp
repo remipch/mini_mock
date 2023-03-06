@@ -158,14 +158,20 @@ typedef std::function<void()> mini_mock_test_function;
 static std::map<std::string,mini_mock_test_function> mini_mock_tests;
 
 // Declare a struct for test definition, it allows to update
-// the global test list for each test creation in the struct constructor
+// the global test list for each test created in file scope
 struct mini_mock_test {
     mini_mock_test(std::string test_name,mini_mock_test_function test_function){
         mini_mock_tests[test_name] = test_function;
     }
 };
 
-#define TEST(test,test_function) mini_mock_test test(#test,test_function)
+// This macro is to be interpreted as :
+// #define TEST(test,test_function) mini_mock_test test(#test,test_function)
+// However, 'test_function' cannot be passed as macro parameter because C++ precompilator
+// will split it by all internal commas it found inside its body
+// (see https://stackoverflow.com/a/49826249)
+// Passing it as variadic arguments allows to pass it correctly to mini_mock_test constructor
+#define TEST(test,...) mini_mock_test test(#test,__VA_ARGS__)
 
 // This macro must be placed after all 'TEST' macros
 #define CREATE_MAIN_ENTRY_POINT() \
