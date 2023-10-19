@@ -46,6 +46,7 @@
 #include <iostream>
 #include <deque>
 #include <map>
+#include <vector>
 
 // Useful console colors
 #define RED "\x1B[31m"
@@ -157,11 +158,14 @@ typedef std::function<void()> mini_mock_test_function;
 
 static std::map<std::string,mini_mock_test_function> mini_mock_tests;
 
+static std::vector<std::string> mini_mock_test_names;
+
 // Declare a struct for test definition, it allows to update
 // the global test list for each test created in file scope
 struct mini_mock_test {
     mini_mock_test(std::string test_name,mini_mock_test_function test_function){
         mini_mock_tests[test_name] = test_function;
+        mini_mock_test_names.push_back(test_name);
     }
 };
 
@@ -197,15 +201,32 @@ bool mini_mock_run_test(std::string test_name) {
     }
 }
 
+bool mini_mock_run_all_tests() {
+    bool success = true;
+    for(auto test_name : mini_mock_test_names) {
+        success &= mini_mock_run_test(test_name);
+    }
+    return success;
+}
+
+bool mini_mock_run_tests(int argc, char **argv) {
+    if(argc==1) {
+        return mini_mock_run_all_tests();
+    }
+
+    bool success = true;
+    for(int i=1;i<argc;i++) {
+        std::string test_name(argv[i]);
+        success &= mini_mock_run_test(test_name);
+    }
+
+    return success;
+}
+
 // This macro must be placed after all 'TEST' macros
 #define CREATE_MAIN_ENTRY_POINT() \
     int main(int argc, char **argv) {  \
-        if(argc!=2) { \
-            std::cout << RED << "test name must be passed as command line argument" << END_COLOR << '\n'; \
-            exit(-1); \
-        } \
-        std::string test_name(argv[1]); \
-        if(mini_mock_run_test(test_name)) { \
+        if(mini_mock_run_tests(argc, argv)) { \
             exit(0); \
         } \
         else { \
