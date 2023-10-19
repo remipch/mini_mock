@@ -173,6 +173,30 @@ struct mini_mock_test {
 // Passing it as variadic arguments allows to pass it correctly to mini_mock_test constructor
 #define TEST(test,...) mini_mock_test test(#test,__VA_ARGS__)
 
+// return true if test passed
+bool mini_mock_run_test(std::string test_name) {
+    std::cout << YELLOW << test_name << END_COLOR << '\n';
+    if (mini_mock_tests.find(test_name) == mini_mock_tests.end()) {
+        std::cout << RED << "unknown test  :" << test_name << END_COLOR << '\n';
+        exit(-1);
+    }
+    mini_mock_test_function test_function = mini_mock_tests.at(test_name);
+    test_function();
+    for (const auto &recorded_callback : mini_mock_recorded_callbacks) {
+        int uncalled_callbacks_count = recorded_callback.second;
+        ASSERT_MSG(uncalled_callbacks_count==0, std::to_string(uncalled_callbacks_count)
+        + " mock callback(s) never called for " + recorded_callback.first);
+    }
+    if(mini_mock_failed_conditions_count==0) {
+        std::cout << GREEN << "PASSED" << END_COLOR << '\n';
+        return true;
+    }
+    else {
+        std::cout << RED << "FAILED " << END_COLOR << '\n';
+        return false;
+    }
+}
+
 // This macro must be placed after all 'TEST' macros
 #define CREATE_MAIN_ENTRY_POINT() \
     int main(int argc, char **argv) {  \
@@ -181,24 +205,10 @@ struct mini_mock_test {
             exit(-1); \
         } \
         std::string test_name(argv[1]); \
-        std::cout << YELLOW << test_name << END_COLOR << '\n'; \
-        if (mini_mock_tests.find(test_name) == mini_mock_tests.end()) { \
-            std::cout << RED << "unknown test  :" << test_name << END_COLOR << '\n'; \
-            exit(-1); \
-        } \
-        mini_mock_test_function test_function = mini_mock_tests.at(test_name); \
-        test_function(); \
-        for (const auto &recorded_callback : mini_mock_recorded_callbacks) { \
-            int uncalled_callbacks_count = recorded_callback.second; \
-            ASSERT_MSG(uncalled_callbacks_count==0, std::to_string(uncalled_callbacks_count) \
-            + " mock callback(s) never called for " + recorded_callback.first); \
-        } \
-        if(mini_mock_failed_conditions_count==0) { \
-            std::cout << GREEN << "PASSED" << END_COLOR << '\n'; \
+        if(mini_mock_run_test(test_name)) { \
             exit(0); \
         } \
         else { \
-            std::cout << RED << "FAILED " << END_COLOR << '\n'; \
             exit(-1); \
         } \
     }
