@@ -178,7 +178,7 @@ struct mini_mock_test {
 #define TEST(test,...) mini_mock_test test(#test,__VA_ARGS__)
 
 // return true if test passed
-bool mini_mock_run_test(std::string test_name) {
+inline bool mini_mock_run_test(std::string test_name) {
     std::cout << YELLOW << test_name << END_COLOR << '\n';
     if (mini_mock_tests.find(test_name) == mini_mock_tests.end()) {
         std::cout << RED << "unknown test  :" << test_name << END_COLOR << '\n';
@@ -201,7 +201,7 @@ bool mini_mock_run_test(std::string test_name) {
     }
 }
 
-bool mini_mock_run_all_tests() {
+inline bool mini_mock_run_all_tests() {
     bool success = true;
     for(auto test_name : mini_mock_test_names) {
         success &= mini_mock_run_test(test_name);
@@ -209,7 +209,7 @@ bool mini_mock_run_all_tests() {
     return success;
 }
 
-bool mini_mock_run_tests(int argc, char **argv) {
+inline bool mini_mock_run_tests(int argc, char **argv) {
     if(argc==1) {
         return mini_mock_run_all_tests();
     }
