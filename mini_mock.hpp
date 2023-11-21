@@ -76,7 +76,7 @@ static int mini_mock_failed_conditions_count = 0;
 // - the test continues
 // - the test will fail at the end
 #define EXPECT_MSG(condition,message) { \
-    if(!condition) { \
+    if(!(condition)) { \
         mini_mock_failed_conditions_count++; \
         std::cout << RED << "    failed condition (" #condition << ") : "; \
         std::cout << message << " at " <<__FILE__ << ":"<< __LINE__ << END_COLOR << '\n'; \
@@ -87,7 +87,7 @@ static int mini_mock_failed_conditions_count = 0;
 // - the given message will be printed
 // - the test fails and stops immediately
 #define ASSERT_MSG(condition,message) { \
-    if(!condition) { \
+    if(!(condition)) { \
         std::cout << RED << "    failed condition (" #condition << ") : "; \
         std::cout << message << " at " <<__FILE__ << ":"<< __LINE__ << END_COLOR << '\n'; \
         exit(-1); \
